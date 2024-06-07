@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Data_Access_Layer
 {
-
     public class DALAdminUser
     {
         private readonly AppDbContext _cIDbContext;
@@ -51,6 +50,7 @@ namespace Data_Access_Layer
                                      }).ToListAsync();
             return userDetails;
         }
+
         public async Task<string> DeleteUserAndUserDetailAsync(int userId)
         {
             try
@@ -91,6 +91,8 @@ namespace Data_Access_Layer
                 throw ex;
             }
         }
-        
+
+       
     }
 }
+

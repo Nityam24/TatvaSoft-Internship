@@ -16,7 +16,17 @@ namespace Web_API.Controllers
         {           
             _balLogin = balLogin;
         }
-            
+
+        [HttpGet("GetUserById/{id}")]
+        public IActionResult GetUserById(int id)
+        {
+            var user = _balLogin.GetUserById(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
 
         [HttpPost]
         [Route("LoginUser")]
@@ -34,6 +44,7 @@ namespace Web_API.Controllers
             }
             return result;
         }
+
         [HttpPost]
         [Route("Register")]
         public ResponseResult RegisterUser(User user)
@@ -49,23 +60,30 @@ namespace Web_API.Controllers
                 result.Message = ex.Message;
             }
             return result;
+
         }
+
         [HttpPut]
         [Route("UpdateUser")]
-        public ResponseResult UpdateUser(User user)
+        public IActionResult UpdateUser(User user)
         {
-            var result = new ResponseResult();
             try
             {
-                result.Data = _balLogin.Update(user);
-                result.Result = ResponseStatus.Success;
+                var result = _balLogin.UpdateUser(user);
+                if (result.Result == ResponseStatus.Success)
+                {
+                    return Ok(new ResponseResult { Data = result.Message, Result = ResponseStatus.Success });
+                }
+                else
+                {
+                    return BadRequest(new ResponseResult { Result = ResponseStatus.Error, Message = result.Message });
+                }
             }
             catch (Exception ex)
             {
-                result.Result = ResponseStatus.Error;
-                result.Message = ex.Message;
+                return StatusCode(500, new ResponseResult { Result = ResponseStatus.Error, Message = ex.Message });
             }
-            return result;
         }
     }
 }
+        

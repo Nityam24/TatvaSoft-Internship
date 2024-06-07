@@ -1,6 +1,8 @@
 ﻿using Business_logic_Layer;
+using Data_Access_Layer;
 using Data_Access_Layer.Repository.Entities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Web_API.Controllers
@@ -59,7 +61,7 @@ namespace Web_API.Controllers
                 return StatusCode(500, new ResponseResult { Result = ResponseStatus.Error, Message = ex.Message });
             }
         }
-        [HttpPut]
+        [HttpPost]
         [Route("UpdateMissionSkill")]
         public async Task<ActionResult<ResponseResult>> UpdateMissionSkill(MissionSkill missionSkill)
         {

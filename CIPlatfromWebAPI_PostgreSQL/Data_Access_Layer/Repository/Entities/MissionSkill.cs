@@ -11,7 +11,7 @@ namespace Data_Access_Layer.Repository.Entities
     {
         [Key]
         public int Id { get; set; }
-        public string? SkillName { get; set; }
-        public string? Status { get; set; }
+        public string SkillName { get; set; }
+        public string Status { get; set; }
     }
 }

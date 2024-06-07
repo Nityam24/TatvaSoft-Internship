@@ -1,5 +1,5 @@
-﻿using Data_Access_Layer.Repository.Entities;
-using Data_Access_Layer;
+﻿using Data_Access_Layer;
+using Data_Access_Layer.Repository.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +25,6 @@ namespace Business_logic_Layer
         {
             return await _dalAdminUser.DeleteUserAndUserDetailAsync(userId);
         }
-
+        
     }
 }

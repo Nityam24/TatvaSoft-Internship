@@ -14,21 +14,21 @@ namespace Business_logic_Layer
             _dalLogin = dalLogin;
             _jwtService = jwtService;
         }
-
+    
         public ResponseResult LoginUser(User user)
         {
             try
             {
-                User userObj = new User();
+                User userObj= new User();
                 userObj = UserLogin(user);
 
-                if (userObj != null)
+                if(userObj != null)
                 {
-                    if (userObj.Message.ToString() == "Login Successfully")
+                    if(userObj.Message.ToString() == "Login Successfully")
                     {
                         result.Message = userObj.Message;
                         result.Result = ResponseStatus.Success;
-                        result.Data = _jwtService.GenerateToken(userObj.Id.ToString(), userObj.FirstName, userObj.LastName, userObj.PhoneNumber, userObj.EmailAddress, userObj.UserType, userObj.UserImage);
+                        result.Data = _jwtService.GenerateToken(userObj.Id.ToString(), userObj.FirstName, userObj.LastName, userObj.PhoneNumber, userObj.EmailAddress,userObj.UserType,userObj.UserImage);
                     }
                     else
                     {
@@ -48,7 +48,7 @@ namespace Business_logic_Layer
             }
             return result;
         }
-        public User UserLogin(User user)
+        public User  UserLogin(User user)
         {
             User userOb = new User()
             {
@@ -58,15 +58,30 @@ namespace Business_logic_Layer
 
             return _dalLogin.LoginUser(user);
         }
+
         public string Register(User user)
         {
             return _dalLogin.Register(user);
         }
-        public async Task<String> Update(User user)
+        public User GetUserById(int id)
         {
-            return await _dalLogin.UpdateUserDetails(user);
+            return _dalLogin.GetUserById(id);
         }
 
+        public ResponseResult UpdateUser(User user)
+        {
+            try
+            {
+                string updateResult = _dalLogin.UpdateUser(user);
+                result.Message = updateResult;
+                result.Result = ResponseStatus.Success;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.Message;
+                result.Result = ResponseStatus.Error;
+            }
+            return result;
+        }
     }
 }
-

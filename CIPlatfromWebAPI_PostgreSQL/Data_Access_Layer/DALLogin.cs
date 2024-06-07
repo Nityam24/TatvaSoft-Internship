@@ -72,8 +72,8 @@ namespace Data_Access_Layer
                 bool emailExists = _cIDbContext.User.Any(u => u.EmailAddress == user.EmailAddress && !u.IsDeleted);
                 if (!emailExists)
                 {
-                    int maxEmployeeId = 0;
                     string maxEmployeeIdStr = _cIDbContext.UserDetail.Max(ud => ud.EmployeeId);
+                    int maxEmployeeId = 0;
                     if (!string.IsNullOrEmpty(maxEmployeeIdStr))
                     {
                         if (int.TryParse(maxEmployeeIdStr, out int parsedEmployeeId))
@@ -100,6 +100,7 @@ namespace Data_Access_Layer
                     };
                     _cIDbContext.User.Add(newUser);
                     _cIDbContext.SaveChanges();
+
                     var newUserDetail = new UserDetail
                     {
                         UserId = newUser.Id,
@@ -116,62 +117,101 @@ namespace Data_Access_Layer
                     };
                     _cIDbContext.UserDetail.Add(newUserDetail);
                     _cIDbContext.SaveChanges();
+
                     result = "User Register Successfully";
                 }
                 else
                 {
-                    throw new Exception("Email is Already Exist.");
+                    throw new Exception("Email Already Exists.");
                 }
+            }
+            catch (DbUpdateException dbEx)
+            {
+                var innerException = dbEx.InnerException != null ? dbEx.InnerException.Message : dbEx.Message;
+                throw new Exception($"An error occurred while saving the entity changes. Details: {innerException}");
             }
             catch (Exception ex)
             {
-                throw;
+                throw new Exception($"An unexpected error occurred: {ex.Message}");
             }
             return result;
         }
 
-        public async Task<String> UpdateUserDetails(User user)
+        
+
+        public User GetUserById(int userId)
         {
             try
             {
-                var existedUser = await _cIDbContext.User.Where(u => u.Id == user.Id && !u.IsDeleted).FirstOrDefaultAsync();
-                if (existedUser != null)
+                var user = _cIDbContext.User
+                    .Where(u => u.Id == userId && !u.IsDeleted)
+                    .Select(u => new User
+                    {
+                        Id = u.Id,
+                        FirstName = u.FirstName,
+                        LastName = u.LastName,
+                        PhoneNumber = u.PhoneNumber,
+                        EmailAddress = u.EmailAddress,
+                        UserType = u.UserType,
+                        UserImage = u.UserImage,
+                        CreatedDate = u.CreatedDate,
+                        ModifiedDate = u.ModifiedDate,
+                        IsDeleted = u.IsDeleted,
+                        Message = "User retrieved successfully."
+                    })
+                    .FirstOrDefault();
+
+                if (user == null)
                 {
-                    existedUser.FirstName = user.FirstName;
-                    existedUser.LastName = user.LastName;
-                    existedUser.PhoneNumber = user.PhoneNumber;
-                    existedUser.EmailAddress = user.EmailAddress;
-                    existedUser.Password = user.Password;
-                    existedUser.UserType = user.UserType;
-                    existedUser.ModifiedDate = DateTime.UtcNow;
-                    existedUser.UserType = "user";
-                    await _cIDbContext.SaveChangesAsync();
+                    return new User { Message = "User not found." };
                 }
-                else
-                {
-                    throw new Exception("user with given id doesnt exist or deleted");
-                }
-                var existedUserDetail = await _cIDbContext.UserDetail.Where(ud => ud.UserId == user.Id && !ud.IsDeleted).FirstOrDefaultAsync();
-                if (existedUserDetail != null)
-                {
-                    existedUserDetail.FirstName = user.FirstName;
-                    existedUserDetail.LastName = user.LastName;
-                    existedUserDetail.PhoneNumber = user.PhoneNumber;
-                    existedUserDetail.EmailAddress = user.EmailAddress;
-                    existedUserDetail.Name = user.FirstName;
-                    existedUserDetail.Surname = user.LastName;
-                    await _cIDbContext.SaveChangesAsync();
-                }
-                else
-                {
-                    throw new Exception("user with given id doesnt exist or deleted");
-                }
-                return "User Updated Successfully";
+
+                return user;
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new Exception("An error occurred while retrieving the user.", ex);
             }
         }
+
+
+        public string UpdateUser(User user)
+        {
+            try
+            {
+                var existingUser = _cIDbContext.User.FirstOrDefault(u => u.Id == user.Id && !u.IsDeleted);
+                if (existingUser == null)
+                {
+                    throw new Exception("User not found.");
+                }
+
+                existingUser.FirstName = user.FirstName;
+                existingUser.LastName = user.LastName;
+                existingUser.PhoneNumber = user.PhoneNumber;
+                existingUser.EmailAddress = user.EmailAddress;
+                existingUser.Password = user.Password;
+
+                var existingUserDetail = _cIDbContext.UserDetail.FirstOrDefault(ud => ud.UserId == user.Id);
+                if (existingUserDetail == null)
+                {
+                    throw new Exception("User details not found.");
+                }
+
+                existingUserDetail.Name = user.FirstName;
+                existingUserDetail.Surname = user.LastName;
+                existingUserDetail.PhoneNumber = user.PhoneNumber;
+                existingUserDetail.EmailAddress = user.EmailAddress;
+                existingUserDetail.UserType = user.UserType;
+
+                _cIDbContext.SaveChanges();
+
+                return "User updated successfully";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while updating the user.", ex);
+            }
+        }
+
     }
 }

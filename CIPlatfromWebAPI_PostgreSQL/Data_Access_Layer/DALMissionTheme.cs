@@ -17,27 +17,31 @@ namespace Data_Access_Layer
         {
             _cIDbContext = cIDbContext;
         }
+
         public async Task<List<MissionTheme>> GetMissionThemeListAsync()
         {
             return await _cIDbContext.MissionTheme.Where(x => !x.IsDeleted).ToListAsync();
         }
+
         public async Task<MissionTheme> GetMissionThemeByIdAsync(int id)
         {
             return await _cIDbContext.MissionTheme.Where(x => !x.IsDeleted && x.Id == id).FirstOrDefaultAsync();
         }
+
         public async Task<string> AddMissionThemeAsync(MissionTheme missionTheme)
         {
             try
             {
                 _cIDbContext.MissionTheme.Add(missionTheme);
                 await _cIDbContext.SaveChangesAsync();
-                return "Save Theme Successfully.";
+                return "Save theme Successfully.";
             }
             catch (Exception ex)
             {
-                throw new Exception("Error in adding Theme.", ex);
+                throw new Exception("Error in adding theme.", ex);
             }
         }
+
         public async Task<string> UpdateMissionThemeAsync(MissionTheme missionTheme)
         {
             try
@@ -48,39 +52,40 @@ namespace Data_Access_Layer
                     existingTheme.ThemeName = missionTheme.ThemeName;
                     existingTheme.Status = missionTheme.Status;
                     await _cIDbContext.SaveChangesAsync();
-                    return "Update Theme Successfully.";
+                    return "Update theme Successfully.";
                 }
                 else
                 {
-                    throw new Exception("Mission Theme is not found.");
+                    throw new Exception("Mission theme is not found.");
                 }
 
             }
             catch (Exception ex)
             {
-                throw new Exception("Error in updating Theme.", ex);
+                throw new Exception("Error in updating theme.", ex);
             }
         }
+
         public async Task<string> DeleteMissionThemeAsync(int id)
         {
             try
             {
-                var existingTheme  = await _cIDbContext.MissionTheme.Where(x => !x.IsDeleted && x.Id == id).FirstOrDefaultAsync();
+                var existingTheme = await _cIDbContext.MissionTheme.Where(x => !x.IsDeleted && x.Id == id).FirstOrDefaultAsync();
                 if (existingTheme != null)
                 {
                     existingTheme.IsDeleted = true;
                     await _cIDbContext.SaveChangesAsync();
-                    return "Delete Theme Successfully.";
+                    return "Delete theme Successfully.";
                 }
                 else
                 {
-                    throw new Exception("Mission Theme is not found.");
+                    throw new Exception("Mission theme is not found.");
                 }
 
             }
             catch (Exception ex)
             {
-                throw new Exception("Error in deleting Theme.", ex);
+                throw new Exception("Error in deleting theme.", ex);
             }
         }
     }
